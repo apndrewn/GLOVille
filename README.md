@@ -1,1 +1,567 @@
-Test
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GLOville Gazette 2.0 — Week 5</title>
+<style>
+  :root{
+    --ink:#111;
+    --muted:#636a7c;
+    --accent:#e11d48; /* rose */
+    --accent-2:#0ea5e9; /* sky */
+    --accent-3:#22c55e; /* green */
+    --accent-4:#f59e0b; /* amber */
+    --paper:#fff;
+    --box:#f7f7f9;
+  }
+  @media print {
+    a{color:inherit;text-decoration:none}
+    .no-print{display:none!important}
+    .page{page-break-after:always}
+  }
+  html,body{margin:0;background:linear-gradient(180deg,#e9ecf3,#eef2f8);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:980px;margin:24px auto;padding:0 16px}
+  header.hero{background:linear-gradient(135deg,#0b1220,#1b2a47 55%,#0ea5e9);color:#fff;border-radius:20px;box-shadow:0 14px 34px rgba(0,0,0,.18);overflow:hidden}
+  .hero-inner{display:grid;grid-template-columns:2.2fr 1fr;gap:24px;padding:28px}
+  .mast{letter-spacing:.2px}
+  .tag{font-size:12px;color:#c0c6d4;text-transform:uppercase}
+  h1.title{font-size:42px;line-height:1.08;margin:8px 0 6px}
+  .dek{font-size:15px;color:#d7dcee}
+  .badge{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.26);padding:6px 10px;border-radius:999px;font-size:12px}
+  .grid{display:grid;gap:18px}
+  .grid.cols-3{grid-template-columns:repeat(3,1fr)}
+  .grid.cols-2{grid-template-columns:repeat(2,1fr)}
+  .card{background:var(--paper);border-radius:18px;box-shadow:0 10px 26px rgba(0,0,0,.12);padding:18px;border:1px solid #e5e8f1;height:auto}
+  .card.headline{padding:0;overflow:hidden}
+  .card .hd{font-weight:800;font-size:20px;margin-bottom:8px}
+  .byline{font-size:13px;color:var(--muted)}
+  .lead{font-size:17px;line-height:1.6}
+  .sidebar{background:linear-gradient(180deg,#ffffff,#f6f8ff);border:1px solid #e6e9f4}
+  .chip{display:inline-block;border:1px solid #dde1ea;background:linear-gradient(180deg,#ffffff,#f3f6fb);padding:4px 8px;border-radius:999px;font-size:12px;color:#333;margin:2px 6px 2px 0}
+  .quote{border-left:4px solid var(--accent);padding:10px 12px;margin:10px 0;background:#fff7f8;border-radius:8px}
+  .kicker{font-size:12px;color:var(--accent);letter-spacing:.2em;text-transform:uppercase}
+  h2{margin:0 0 8px;font-size:22px}
+  h3{margin:0 0 6px;font-size:18px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{border-bottom:1px solid #eee;padding:8px;text-align:left}
+  th{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#333;background:linear-gradient(180deg,#f7f9ff,#eef3ff)}
+  .standings td:nth-child(2), .standings td:nth-child(3){text-align:center}
+  .pill{display:inline-block;background:#eef6ff;border:1px solid #d8e8ff;color:#08499c;border-radius:10px;padding:2px 8px;font-size:12px}
+  .statbox{background:linear-gradient(135deg,#0b1220,#293a63);color:#eef2ff;border-radius:16px;padding:16px}
+  .statbox h3{font-weight:800}
+  .statrow{display:flex;gap:12px;flex-wrap:wrap}
+  .stat{flex:1 1 160px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:12px}
+  .split{display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
+  .callout{background:#fff6f6;border:1px solid #ffdcdc;border-left:4px solid var(--accent);padding:12px;border-radius:10px}
+  footer{color:#555;font-size:12px;margin:26px 0}
+  .puzzle{background:linear-gradient(180deg,#ffffff,#f7f8fc);border-radius:14px;padding:16px;border:1px dashed #cfd6e6}
+  .flex{display:flex;gap:12px;align-items:flex-start}
+  .taggy{font-size:11px;color:#75809a}
+  .mini{font-size:12px;color:#444}
+  .sr{position:absolute;left:-10000px}
+  /* Crossword visuals */
+  .crosswrap{display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
+  .crossgrid{--size:30px;display:grid;grid-template-columns:repeat(10,var(--size));grid-template-rows:repeat(10,var(--size));gap:2px;justify-content:center;margin:6px auto 10px}
+  .cell{position:relative;width:var(--size);height:var(--size);background:#fff;border:1px solid #cfd6e6;border-radius:6px;box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+  .cell input{width:100%;height:auto;border:0;text-transform:uppercase;font-weight:700;font-size:16px;text-align:center;background:transparent}
+  .cell input:focus{outline:2px solid var(--accent-2);outline-offset:-2px}
+  .cell.block{background:#0f172a;border-color:#0f172a}
+  .num{position:absolute;top:2px;left:4px;font-size:9px;color:#64748b}
+  .controls{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{background:linear-gradient(180deg,#0ea5e9,#0284c7);color:#fff;border:0;padding:8px 10px;border-radius:10px;font-size:12px;cursor:pointer}
+  .btn.alt{background:linear-gradient(180deg,#22c55e,#15803d)}
+  .btn.ghost{background:transparent;border:1px solid #cfd6e6;color:#334155}
+  .clues h4{margin:8px 0 6px;font-size:14px;color:#111}
+  .clues li{margin:4px 0}
+  /* Graphic placeholders */
+  .spotlight-media{height:200px;border:2px dashed #cbd5e1;border-radius:14px;background:repeating-linear-gradient(45deg,#f8fafc,#f8fafc 10px,#eef2ff 10px,#eef2ff 20px);display:grid;place-items:center;color:#64748b;font-weight:600;margin:10px 0}
+  .comic-placeholder{height:260px;border:3px dashed #94a3b8;border-radius:14px;background:repeating-linear-gradient(135deg,#f1f5f9,#f1f5f9 12px,#e2e8f0 12px,#e2e8f0 24px);display:grid;place-items:center;color:#475569;font-weight:700;font-size:18px;margin:12px 0}
+  /* Team chips for tables */
+  .team{display:flex;align-items:center;gap:8px}
+  .team .logo{width:20px;height:20px;border-radius:50%;background:var(--c,#94a3b8);display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.15)}
+  .team .name{white-space:normal}
+  /* Print/PDF enhancements */
+  *{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  img{max-width:100%;height:auto;page-break-inside:avoid;break-inside:avoid}
+  .card{break-inside:avoid}
+  table, tr, td, th{page-break-inside:auto}
+  @page{size:Letter;margin:0.5in}
+  @media print{
+    .wrap{max-width:7.5in;margin:0 auto}
+    header.hero{border-radius:0}
+    .grid{align-items:stretch}
+    .grid.cols-3{grid-template-columns:1fr 1fr}
+    .grid.cols-2{grid-template-columns:1fr 1fr}
+    .card.headline{page-break-inside:avoid}
+    .sidebar{page-break-inside:avoid}
+  }
+  /* Title graphic placeholder */
+  .gazette-banner{margin-top:14px;height:140px;border-radius:16px;border:3px dashed #cbd5e1;background:repeating-linear-gradient(135deg,#f8fafc,#f8fafc 12px,#eef2ff 12px,#eef2ff 24px);display:grid;place-items:center;color:#1f2937;font-weight:900;font-size:28px;letter-spacing:.05em;text-transform:uppercase;box-shadow:inset 0 10px 20px rgba(0,0,0,.04)}
+  /* --- PDF Export & Title Card Tweaks --- */
+  header.hero .hero-inner{display:block}
+  header.hero .hero-inner img{display:block;float:none;margin:4px 0 14px 0;max-height:260px;width:100%;height:auto;object-fit:cover;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+  header.hero .title{margin-top:2px;display:block;clear:both}
+  header.hero .dek{clear:none}
+  @media (max-width: 640px){
+    header.hero .hero-inner img{float:none;margin:0 0 12px 0;max-width:100%;height:auto}
+  }
+  @media print{
+    body{background:#fff}
+    header.hero{background:#0b1220}
+    .card{box-shadow:none;border:1px solid #cfd6e6}
+    .badge{border-color:#d7dbe8;background:#f5f7fb;color:#111}
+    .stat{background:#fff;border-color:#e6eaf4}
+  }
+.print-cta{position:fixed;bottom:20px;right:20px;z-index:9999}
+.print-cta .btn{box-shadow:0 6px 16px rgba(0,0,0,.18)}
+@media print{.print-cta{display:none!important}}
+/* --- COMPACT NEWSPAPER PRINT OVERRIDES --- */
+<style>
+  /* Global compact type + spacing */
+  @media print{
+    html,body{font-size:12px;line-height:1.35}
+    .wrap{max-width:7.5in;margin:0 auto}
+    .grid{gap:10px}
+    .card{padding:12px;border-radius:8px}
+    h1.title{font-size:26px;line-height:1.15;margin:4px 0 6px}
+    h2{font-size:16px;margin:0 0 6px}
+    h3{font-size:14px;margin:0 0 4px}
+    .lead{font-size:13px;line-height:1.4}
+    table{font-size:11px}
+    th,td{padding:6px}
+    .mini{font-size:11px}
+    .taggy{font-size:10px}
+
+    /* Kill ornamental spacing / effects */
+    .card, header.hero, .sidebar{box-shadow:none}
+    .badge, .print-cta, .comic-placeholder{display:none!important}
+
+    /* Tighter header block */
+    header.hero .hero-inner{padding:12px}
+    header.hero .hero-inner img{max-height:120px;margin:4px 0 8px 0}
+    header.hero{border-radius:0}
+
+    /* Grid density */
+    .grid.cols-3{grid-template-columns:1fr 1fr}
+    .grid.cols-2{grid-template-columns:1fr 1fr}
+
+    /* Avoid forced page breaks to save space */
+    .page{page-break-after:auto}
+
+    /* Tables & chips density */
+    .chip{padding:2px 6px;margin:1px 4px 1px 0;font-size:10px}
+
+    /* Crossword smaller cells & hide buttons */
+    .crossgrid{--size:22px;gap:1px}
+    .controls{display:none}
+
+    /* Images */
+    img{max-height:180px}
+
+    /* Color simplification for legibility */
+    .sidebar{background:#fff;border:1px solid #ccd2e0}
+    th{background:#f2f4fa}
+  }
+
+  /* Optional on‑screen compact preview (toggle by adding .preview-compact on body) */
+  body.preview-compact{font-size:13px}
+  body.preview-compact .grid{gap:12px}
+  body.preview-compact .card{padding:14px;border-radius:10px}
+  body.preview-compact h1.title{font-size:30px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="print-cta no-print" aria-label="Print controls">
+      <button class="btn" title="Print / Save as PDF" onclick="window.print()">Print to PDF</button>
+    </div>
+    <header class="hero page">
+      <div class="hero-inner">
+        <div>
+          <a href="https://freeimage.host/i/KhN6Xja"><img src="https://iili.io/KhN6Xja.md.jpg" alt="KhN6Xja.md.jpg" border="0"></a><br /><a target='_blank' href='https://freeimage.host/'></a><br />
+          <h1 class="title">Miracle Plays, Bitter Pills & Two Conferences in a Soap Opera</h1>
+          <div class="dek">Colgate’s Moops keep moonwalking, Palmolive’s Band keeps the beat — and two managers draw the shortest straws in the knockout pool.</div>
+          <div class="byline" style="margin-top:10px">By The GLOville Desk • Monday, October 6, 2025</div>
+          <div style="margin-top:12px">
+            <span class="badge">Print-Friendly</span>
+            <span class="badge">Satire & Stats</span>
+            <span class="badge">Week 5 Edition</span>
+          </div>
+        
+          <h3>Scoreboard Headlines</h3>
+          <div class="statrow">
+            <div class="stat"><div class="taggy">Colgate • Top Win</div><div style="font-weight:800;font-size:20px">Lane of Scrimmage 147.0</div><div class="mini">upsets KC Chiefs are Mahomies</div></div>
+            <div class="stat"><div class="taggy">Palmolive • Top Win</div><div style="font-weight:800;font-size:20px">The Band fka KC + The SS Band 150.4</div><div class="mini">edges Sharon’s Scary Squad</div></div>
+            <div class="stat"><div class="taggy">KO Pool Casualties</div><div style="font-weight:800;font-size:20px">Billy Mumphrey & Taylor and Travis</div><div class="mini">lowest weekly scores in each conference</div></div>
+        </div>
+      </div>
+    </header>
+
+    <section class="grid cols-2 page">
+      <article class="card headline">
+        <div style="padding:20px">
+          <div class="kicker">Colgate Conference</div>
+          <h2>Five for Fighting: Moops hit 5–0, chaos everywhere else</h2>
+          <p class="lead">
+            The Moops (139.64) handled Amelia’s Astounding Team (102.04) with minimal drama, staying perfect. Lane of Scrimmage (147.00) stunned KC Chiefs are Mahomies (126.00) in a result that rattled the top seed’s crown. The New Kid on the Block finally found the block party, topping Billy Mumphrey 134.66–88.92. Looking for #3 posted a composed 140.06 against Scranton Stranglers (116.72). And in a thriller, THE KENPIRE STRIKES BACK (143.42) outlasted Team PJ Playerzzzz (139.32).
+          </p>
+          <div class="quote">“I’m not saying the Moops are inevitable, but I am stocking up on tinfoil hats.” — League Insider, probably wearing one.</div>
+        </div>
+      </article>
+      <aside class="card sidebar">
+        <div class="hd">Top Performers — Colgate</div>
+        <div class="chip">Ja’Marr Chase • 29.0</div>
+        <div class="chip">Jonathan Taylor • 31.6</div>
+        <div class="chip">Puka Nacua • 24.5</div>
+        <div class="chip">Dak Prescott • 28.28</div>
+        <div class="chip">Rico Dowdle • 32.4</div>
+        <div class="chip">Christian McCaffrey • 27.9</div>
+        <div class="chip">C.J. Stroud • 28.76</div>
+        <p class="mini" style="margin-top:8px">Numbers shown are Week 5 fantasy points. </p>
+      </aside>
+    </section>
+
+    <section class="grid cols-2 page">
+      <article class="card headline">
+        <div style="padding:20px">
+          <div class="kicker">Palmolive Conference</div>
+          <h2>Band on the Run: KC+SS march on; Taylor & Travis trip on a rake</h2>
+          <p class="lead">
+            The Band fka KC + The SS Band (150.40) kept rhythm in a heavyweight bout over Sharon’s Scary Squad (142.32). Fifth Time’s A Champ (151.32) made a statement versus Blood Eye Gang (102.02). House of McDonagh (124.50) outpaced Mario’s Magnificent Team (116.22). In the nail-biter nobody expected to be a rock fight, Team Kipnis (124.86) clipped Really? Another Loss? FTL. (124.34). And in the muddiest of mud games, shahnam’s Super Team (83.20) beat Taylor and Travis (81.48).
+          </p>
+          <div class="quote">“Palmolive is a fever dream this season: highs, lows, and questionable life choices on autoplay.” — Anonymous Pro Scout</div>
+        </div>
+      </article>
+      <aside class="card sidebar">
+        <div class="hd">Top Performers — Palmolive</div>
+        <div class="chip">Emeka Egbuka • 31.3</div>
+        <div class="chip">Breece/White/Rachaad Club • 23.1</div>
+        <div class="chip">Josh Allen • 19.42</div>
+        <div class="chip">Christian McCaffrey • 27.9</div>
+        <div class="chip">Patrick Mahomes • 26.72</div>
+        <div class="chip">Justin Fields • 25.92</div>
+        <p class="mini" style="margin-top:8px">Numbers shown are Week 5 fantasy points.</p>
+      </aside>
+    </section>
+
+    <section class="grid cols-3 page">
+      <div class="card">
+        <div class="kicker">Standings</div>
+        <h3>Colgate Conference — After Week 5</h3>
+        <table class="standings">
+          <thead><tr><th>Team</th><th>W</th><th>L</th></tr></thead>
+          <tbody>
+            <tr><td><span class="team"><span class="logo" style="--c:#0ea5e9">MO</span><span class="name">The Moops</span></span></td><td>5</td><td>0</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#ef4444">KC</span><span class="name">KC Chiefs are Mahomies</span></span></td><td>4</td><td>1</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#22c55e">#3</span><span class="name">Looking for #3</span></span></td><td>4</td><td>1</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#f59e0b">AM</span><span class="name">Amelia's Astounding Team</span></span></td><td>2</td><td>3</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#8b5cf6">BM</span><span class="name">Billy Mumphrey</span></span></td><td>2</td><td>3</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#14b8a6">LS</span><span class="name">Lane of Scrimmage</span></span></td><td>2</td><td>3</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#06b6d4">SS</span><span class="name">Scranton Stranglers</span></span></td><td>2</td><td>3</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#f43f5e">KP</span><span class="name">THE KENPIRE STRIKES BACK</span></span></td><td>2</td><td>3</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#84cc16">PJ</span><span class="name">Team PJ Playerzzzz</span></span></td><td>1</td><td>4</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#64748b">NK</span><span class="name">The New Kid on the Block</span></span></td><td>1</td><td>4</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="kicker">Standings</div>
+        <h3>Palmolive Conference — After Week 5</h3>
+        <table class="standings">
+          <thead><tr><th>Team</th><th>W</th><th>L</th></tr></thead>
+          <tbody>
+            <tr><td><span class="team"><span class="logo" style="--c:#0ea5e9">BD</span><span class="name">The Band fka KC + The SS Band</span></span></td><td>4</td><td>1</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#22c55e">SS</span><span class="name">shahnam's Super Team</span></span></td><td>4</td><td>1</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#f59e0b">FT</span><span class="name">Fifth Time's A Champ</span></span></td><td>3</td><td>2</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#8b5cf6">HM</span><span class="name">House of McDonagh</span></span></td><td>3</td><td>2</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#ef4444">SH</span><span class="name">Sharon's Scary Squad</span></span></td><td>3</td><td>2</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#06b6d4">BE</span><span class="name">Blood Eye Gang</span></span></td><td>2</td><td>3</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#14b8a6">MM</span><span class="name">Mario's Magnificent Team</span></span></td><td>2</td><td>3</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#84cc16">TT</span><span class="name">Taylor and Travis</span></span></td><td>2</td><td>3</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#64748b">KP</span><span class="name">Team Kipnis</span></span></td><td>2</td><td>3</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#f43f5e">RL</span><span class="name">Really? Another Loss? FTL.</span></span></td><td>0</td><td>5</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <aside class="card sidebar">
+        <div class="hd">League Records (Through Week 5)</div>
+        <div class="kicker">Top 3 • Colgate</div>
+        <ul class="mini">
+          <li>Billy Mumphrey — 167.24 (Week 4)</li>
+          <li>KC Chiefs are Mahomies — 162.86 (Week 3)</li>
+          <li>Team PJ Playerzzzz — 156.52 (Week 3)</li>
+        </ul>
+        <div class="kicker">Bottom 3 • Colgate</div>
+        <ul class="mini">
+          <li>THE KENPIRE STRIKES BACK — 88.42 (Week 3)</li>
+          <li>Billy Mumphrey — 88.92 (Week 5)</li>
+          <li>Lane of Scrimmage — 89.68 (Week 2)</li>
+        </ul>
+        <div class="kicker">Top 3 • Palmolive</div>
+        <ul class="mini">
+          <li>Taylor and Travis — 165.24 (Week 4)</li>
+          <li>House of McDonagh — 161.14 (Week 4)</li>
+          <li>shahnam's Super Team — 156.28 (Week 4)</li>
+        </ul>
+        <div class="kicker">Bottom 3 • Palmolive</div>
+        <ul class="mini">
+          <li>Really? Another Loss? FTL. — 73.90 (Week 3)</li>
+          <li>House of McDonagh — 77.14 (Week 2)</li>
+          <li>Mario's Magnificent Team — 81.22 (Week 3)</li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="grid cols-2 page">
+      <aside class="card sidebar">
+        <div class="hd">Strength of Remaining Schedule (SoS) — Colgate</div>
+        <p class="mini">Average opponent win% for Weeks 6–14.</p>
+        <table>
+          <thead><tr><th>Team</th><th>Avg Opp Win%</th><th>Games Left</th></tr></thead>
+          <tbody>
+            <tr><td><span class="team"><span class="logo" style="--c:#8b5cf6">BM</span><span class="name">Billy Mumphrey</span></span></td><td>0.600</td><td>9</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#f43f5e">KP</span><span class="name">THE KENPIRE STRIKES BACK</span></span></td><td>0.578</td><td>9</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#84cc16">PJ</span><span class="name">Team PJ Playerzzzz</span></span></td><td>0.578</td><td>9</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#64748b">NK</span><span class="name">The New Kid on the Block</span></span></td><td>0.533</td><td>9</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#22c55e">#3</span><span class="name">Looking for #3</span></span></td><td>0.467</td><td>9</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#ef4444">KC</span><span class="name">KC Chiefs are Mahomies</span></span></td><td>0.467</td><td>9</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#f59e0b">AM</span><span class="name">Amelia's Astounding Team</span></span></td><td>0.444</td><td>9</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#14b8a6">LS</span><span class="name">Lane of Scrimmage</span></span></td><td>0.444</td><td>9</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#06b6d4">SS</span><span class="name">Scranton Stranglers</span></span></td><td>0.444</td><td>9</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#0ea5e9">MO</span><span class="name">The Moops</span></span></td><td>0.422</td><td>9</td></tr>
+          </tbody>
+        </table>
+      </aside>
+      <aside class="card sidebar">
+        <div class="hd">Strength of Remaining Schedule (SoS) — Palmolive</div>
+        <p class="mini">Average opponent win% for Weeks 6–14.</p>
+        <table>
+          <thead><tr><th>Team</th><th>Avg Opp Win%</th><th>Games Left</th></tr></thead>
+        <tbody>
+            <tr><td><span class="team"><span class="logo" style="--c:#f43f5e">RL</span><span class="name">Really? Another Loss? FTL.</span></span></td><td>0.578</td><td>9</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#64748b">KP</span><span class="name">Team Kipnis</span></span></td><td>0.556</td><td>9</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#06b6d4">BE</span><span class="name">Blood Eye Gang</span></span></td><td>0.533</td><td>9</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#f59e0b">FT</span><span class="name">Fifth Time's A Champ</span></span></td><td>0.533</td><td>9</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#8b5cf6">HM</span><span class="name">House of McDonagh</span></span></td><td>0.489</td><td>9</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#14b8a6">MM</span><span class="name">Mario's Magnificent Team</span></span></td><td>0.489</td><td>9</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#84cc16">TT</span><span class="name">Taylor and Travis</span></span></td><td>0.489</td><td>9</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#22c55e">SS</span><span class="name">shahnam's Super Team</span></span></td><td>0.467</td><td>9</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#0ea5e9">BD</span><span class="name">The Band fka KC + The SS Band</span></span></td><td>0.467</td><td>9</td></tr>
+            <tr><td><span class="team"><span class="logo" style="--c:#ef4444">SH</span><span class="name">Sharon's Scary Squad</span></span></td><td>0.400</td><td>9</td></tr>
+        </tbody>
+        </table>
+      </aside>
+    </section>
+
+    <section class="grid cols-2 page">
+      <article class="card">
+        <div class="kicker">Managers Spotlight: Ryan Flandro</div>
+        <div class="kicker">(Taylor and Travis)</div>
+        
+<a href="https://freeimage.host/i/KhN0y0B"><img src="https://iili.io/KhN0y0B.md.jpg" alt="KhN0y0B.md.jpg" border="0"></a>        <p>
+          After the Week 4 fireworks, Week 5 brought a hard reset: 81.48 points and an unfortunate knockout-pool exit. Still, the roster has star power and a middling SoS. Translation: the rebound script writes itself — if the lineup choices stop trying to be avant‑garde.
+        </p>
+        <div class="callout">Key note: Despite the stumble, Taylor & Travis still sit at 2–3 with a very manageable remaining slate. The bandwagon isn’t empty; it’s idling.</div>
+      </article>
+      <article class="card">
+        <div class="kicker">Managers Spotlight: Ken Capece</div>
+            <div class="kicker">(THE KENPIRE STRIKES BACK)</div>
+<a href="https://freeimage.host/i/KhNMGet"><img src="https://iili.io/KhNMGet.md.png" alt="KhNMGet.md.png" border="0"></a>        <p>
+          Week 5 delivered a much‑needed 143.42 and a confidence reboot. The Kenpire’s SoS ahead is no cupcake (top‑2 toughest in Colgate), but when the blasters fire, this roster can still vaporize a scoreboard. The comeback tour has fuel.
+        </p>
+        <div class="callout">Stock Watch: Rising. Survive the next three and the bracket gets interesting.</div>
+      </article>
+    </section>
+
+    <section class="grid cols-2 page">
+      <article class="card">
+        <div class="kicker">Editorial</div>
+        <h2>On Waivers, Wisdom, and the Will to Bench</h2>
+        <p>
+          Dear GLOville: you cannot stream your way out of bad decisions. If your bench is scoring 60 and your starters are scoring 40, that’s not bad luck — that’s avant‑garde performance art. The teams rising this year are the ones playing boring, rational fantasy. Be boring! Or don’t, and keep feeding the headlines. We accept both.
+        </p>
+      </article>
+      <aside class="card sidebar">
+        <div class="hd">Quotes of the Week</div>
+        <div class="quote">“Set it and forget it is not a philosophy; it’s an autobiography.” — Veteran Manager</div>
+        <div class="quote">“Shoutout to Mahomies for a great nailbiter!” — Krisanne Lane</div>
+        <div class="quote">“I’m not tanking, I’m transcending.” — Anonymous 0–5 Team</div>
+      </aside>
+    </section>
+
+    <section class="grid cols-2 page">
+      <aside class="card sidebar">
+        <div class="hd">Knockout Pool — Updated</div>
+        <h3>Colgate Eliminations</h3>
+        <ul class="mini">
+          <li>Week 2 — Lane of Scrimmage</li>
+          <li>Week 3 — THE KENPIRE STRIKES BACK</li>
+          <li>Week 4 — The Moops</li>
+          <li>Week 5 — Billy Mumphrey</li>
+        </ul>
+        <h3>Palmolive Eliminations</h3>
+        <ul class="mini">
+          <li>Week 2 — House of McDonagh</li>
+          <li>Week 3 — Really? Another Loss? FTL.</li>
+          <li>Week 4 — Blood Eye Gang</li>
+          <li>Week 5 — Taylor and Travis</li>
+        </ul>
+      </aside>
+      <article class="card">
+        <div class="kicker">Matchup Capsules — Snark Edition</div>
+        <ul class="mini">
+          <li><b>The Moops</b> d. Amelia — a businesslike dub; nothing to see here except 5–0 swagger.</li>
+          <li><b>Lane of Scrimmage</b> d. KC Mahomies — the upset that launched a thousand waiver claims.</li>
+          <li><b>New Kid</b> d. Billy — welcome party for one; defense optional.</li>
+          <li><b>Looking for #3</b> d. Stranglers — efficient, ruthless, on brand.</li>
+          <li><b>Kenpire</b> d. PJ — the blasters finally charged.</li>
+          <li><b>Band (KC+SS)</b> d. Sharon — marquee game, marquee result.</li>
+          <li><b>Fifth Time</b> d. Blood Eye — champ energy returning.</li>
+          <li><b>House</b> d. Mario — brick by brick.</li>
+          <li><b>Kipnis</b> d. R?AL?FTL — vowels missing, win found.</li>
+          <li><b>Shahnam</b> d. Taylor&Travis — rock fight classic.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="grid cols-2 page">
+      <article class="card">
+        <div class="kicker">Knockout Pool — Comic</div>
+        <h2>“Survivor Island: GLOville KO Edition”</h2>
+      <a href="https://freeimage.host/i/KhNljTb"><img src="https://iili.io/KhNljTb.md.jpg" alt="KhNljTb.md.jpg" border="0"></a>
+        <p class="mini">A weekly strip memorializing the lowest-score exits. This week’s stars: <b>Billy Mumphrey</b> and <b>Taylor and Travis</b>.</p>
+      </article>
+    </section>
+
+    <section class="grid cols-2 page">
+      <article class="card puzzle">
+  <div class="kicker">Word Games</div>
+  <h2>GLOville Games — Crossword, Jumble & More</h2>
+  <div class="crosswrap">
+    <div>
+      <h3>GLOville Mini Crossword</h3>
+      <div id="cross" class="crossgrid" aria-label="Crossword Grid"></div>
+      <div class="controls">
+        <button class="btn" onclick="checkCrossword()">Check</button>
+        <button class="btn alt" onclick="revealCrossword()">Reveal</button>
+        <button class="btn ghost" onclick="clearCrossword()">Clear</button>
+      </div>
+    </div>
+    <div class="clues">
+      <h4>Across</h4>
+      <ol class="mini">
+        <li><b>1.</b> Unbeaten Colgate juggernaut (5)</li>
+        <li><b>4.</b> Musical powerhouse in Palmolive (4)</li>
+        <li><b>6.</b> Ryan’s duo, first name (6)</li>
+        <li><b>8.</b> Vampire-themed comeback squad (7)</li>
+      </ol>
+      <h4>Down</h4>
+      <ol class="mini">
+        <li><b>1.</b> Kenpire’s conference (7)</li>
+        <li><b>2.</b> Team ____ Playerzzzz (2)</li>
+        <li><b>3.</b> Formerly El Mariachi: Really? Another ____? FTL. (4)</li>
+        <li><b>5.</b> Last name: House of ______ (8)</li>
+      </ol>
+    </div>
+  </div>
+  <hr/>
+  <h3>GLO-Jumble — De-Scramble the Teams</h3>
+  <ol class="mini">
+    <li>MOPOS</li>
+    <li>NEKPIRE</li>
+    <li>ABND</li>
+    <li>TRALYOR</li>
+  </ol>
+  <details><summary>Answers</summary>
+    <p>1) MOOPS • 2) KENPIRE • 3) BAND • 4) TAYLOR</p>
+  </details>
+  <script>
+    // 10x10 crossword definition using simple coordinates
+    // "#" = block; letters are solution
+    const layout = [
+      "M O O P S # B A N D",
+      "C O L G A T E # I I I",
+      "O # T T # T A Y L O R",
+      "N # P J # K E N P I R",
+      "F T L # S # C O N F E",
+      "E R E A L L Y # E N C",
+      "R # A # L O S S # R E",
+      "E L I M # S # T E A M",
+      "S # B # M C D O N A G",
+      "# # # # # # # # # #"
+    ].map(r=>r.split(" "));
+
+    const clues = {
+      across: {
+        1: "MOOPS",
+        4: "BAND",
+        6: "TAYLOR",
+        8: "KENPIRE"
+      },
+      down: {
+        1: "COLGATE",
+        2: "PJ",
+        3: "LOSS",
+        5: "MCDONAGH"
+      }
+    };
+
+    const grid = document.getElementById('cross');
+    const inputs = [];
+    layout.forEach((row, r)=>{
+      row.forEach((cell, c)=>{
+        const div = document.createElement('div');
+        div.className = 'cell' + (cell === '#' ? ' block' : '');
+        if(cell !== '#'){
+          const inp = document.createElement('input');
+          inp.setAttribute('maxlength','1');
+          inp.dataset.r = r; inp.dataset.c = c; inp.dataset.solution = cell.toUpperCase();
+          div.appendChild(inp);
+          inputs.push(inp);
+        }
+        const startsAcross = (cell !== '#') && (c===0 || row[c-1]==='#');
+        const startsDown = (cell !== '#') && (r===0 || layout[r-1][c]==='#');
+        if(startsAcross || startsDown){
+          const num = document.createElement('div');
+          num.className = 'num';
+          div.appendChild(num);
+        }
+        grid.appendChild(div);
+      })
+    });
+
+    function checkCrossword(){
+      let correct = 0;
+      inputs.forEach(inp=>{
+        const val = (inp.value||'').toUpperCase();
+        if(val && val === inp.dataset.solution){
+          inp.style.background = 'linear-gradient(180deg,#dcfce7,#bbf7d0)';
+        } else if(val){
+          inp.style.background = 'linear-gradient(180deg,#fee2e2,#fecaca)';
+        } else {
+          inp.style.background = 'white';
+        }
+        if(val === inp.dataset.solution) correct++;
+      });
+      alert(`You have ${correct} correct letters out of ${inputs.length}.`);
+    }
+    function revealCrossword(){
+      inputs.forEach(inp=>{ inp.value = inp.dataset.solution; inp.style.background='linear-gradient(180deg,#f0f9ff,#e0f2fe)'; });
+    }
+    function clearCrossword(){
+      inputs.forEach(inp=>{ inp.value=''; inp.style.background='white'; });
+    }
+  </script>
+</article>
+      <aside class="card sidebar">
+        <div class="hd">Fine Print</div>
+        <p class="mini"><b>Disclaimer:</b> This article was generated by an AI platform. AI often makes significant mistakes. This article is only for entertainment value and the content should not be relied upon.</p>
+        <p class="mini">Team formerly known as <i>El Mariachi</i> is now <i>Really? Another Loss? FTL.</i></p>
+        <p class="mini">SoS method: average of opponents’ current win% (through Week 5) across Weeks 6–14.</p>
+      </aside>
+    </section>
+
+  </div>
+</body>
+</html>
